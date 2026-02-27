@@ -1,0 +1,28 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Lensly.App"
+             Name="Lensly"
+             xmlns:local="using:Lensly"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Styles/Colors.axaml"/>
+                <ResourceInclude Source="/Styles/Brushes.axaml"/>
+                <ResourceInclude Source="/Styles/Animations.axaml"/>
+                <ResourceInclude Source="/Styles/Controls.axaml"/>
+                <ResourceInclude Source="/Controls/Themes.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="/Styles/GlobalStyles.axaml"/>
+    </Application.Styles>
+</Application>

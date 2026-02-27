@@ -1,0 +1,85 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="Lensly.Views.CropWindow"
+        Title="Crop Image"
+        Width="1000" Height="700"
+        MinWidth="800" MinHeight="600"
+        Background="#1E1E1E"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        SystemDecorations="Full"
+        ExtendClientAreaToDecorationsHint="False"
+        Topmost="False">
+    
+    <Grid RowDefinitions="*,Auto">
+        <!-- Image and Crop Overlay -->
+        <Border Grid.Row="0" Background="#2D2D2D" Margin="20">
+            <Grid x:Name="ImageContainer" ClipToBounds="True">
+                <Image x:Name="CropImage" 
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+                
+                <!-- Crop Canvas -->
+                <Canvas x:Name="CropCanvas"
+                        Background="Transparent"
+                        Focusable="True"
+                        PointerPressed="CropCanvas_PointerPressed"
+                        PointerMoved="CropCanvas_PointerMoved"
+                        PointerReleased="CropCanvas_PointerReleased">
+                    
+                    <!-- Darkening Mask -->
+                    <Path x:Name="DarkMask" Fill="#99000000" IsHitTestVisible="False"/>
+                    
+                    <!-- Crop Rectangle -->
+                    <Rectangle x:Name="CropRect"
+                              Stroke="White"
+                              StrokeThickness="2"
+                              IsHitTestVisible="False"/>
+                    
+                    <!-- Grid Lines -->
+                    <Rectangle x:Name="GridH1" Fill="White" Height="1" Opacity="0.5" IsHitTestVisible="False"/>
+                    <Rectangle x:Name="GridH2" Fill="White" Height="1" Opacity="0.5" IsHitTestVisible="False"/>
+                    <Rectangle x:Name="GridV1" Fill="White" Width="1" Opacity="0.5" IsHitTestVisible="False"/>
+                    <Rectangle x:Name="GridV2" Fill="White" Width="1" Opacity="0.5" IsHitTestVisible="False"/>
+                    
+                    <!-- Corner Handles -->
+                    <Rectangle x:Name="HandleTL" Width="20" Height="20" Fill="White" Cursor="TopLeftCorner" Tag="TL"/>
+                    <Rectangle x:Name="HandleTR" Width="20" Height="20" Fill="White" Cursor="TopRightCorner" Tag="TR"/>
+                    <Rectangle x:Name="HandleBL" Width="20" Height="20" Fill="White" Cursor="BottomLeftCorner" Tag="BL"/>
+                    <Rectangle x:Name="HandleBR" Width="20" Height="20" Fill="White" Cursor="BottomRightCorner" Tag="BR"/>
+                </Canvas>
+            </Grid>
+        </Border>
+        
+        <!-- Bottom Controls -->
+        <Border Grid.Row="1" Background="#252525" Padding="20" BorderBrush="#3F3F3F" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <TextBlock Grid.Column="0" 
+                          VerticalAlignment="Center"
+                          Foreground="#AAAAAA"
+                          Text="Drag to select crop area. Drag corners to adjust."/>
+                
+                <Button Grid.Column="1"
+                       Content="Cancel"
+                       Margin="0,0,12,0"
+                       Padding="24,10"
+                       Background="#3F3F3F"
+                       Foreground="White"
+                       CornerRadius="6"
+                       Click="Cancel_Click"/>
+                
+                <Button Grid.Column="2"
+                       Content="Apply Crop"
+                       Padding="24,10"
+                       Background="#0078D4"
+                       Foreground="White"
+                       CornerRadius="6"
+                       Click="ApplyCrop_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

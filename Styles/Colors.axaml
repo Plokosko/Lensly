@@ -1,0 +1,79 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="SystemBackgroundColor">#F5F5F7</Color>
+            <Color x:Key="SecondaryBackgroundColor">#FFFFFF</Color>
+            <Color x:Key="TertiaryBackgroundColor">#E8E8ED</Color>
+            
+            <Color x:Key="LabelColor">#1D1D1F</Color>
+            <Color x:Key="SecondaryLabelColor">#6E6E73</Color>
+            <Color x:Key="TertiaryLabelColor">#AEAEB2</Color>
+            <Color x:Key="QuaternaryLabelColor">#C7C7CC</Color>
+            
+            <Color x:Key="SeparatorColor">#C6C6C8</Color>
+            <Color x:Key="OpaqueSeparatorColor">#C6C6C8</Color>
+            
+            <Color x:Key="AccentColor">#007AFF</Color>
+            <Color x:Key="AccentColorSecondary">#5AC8FA</Color>
+            
+            <Color x:Key="GlassTintColor">#FFFFFF</Color>
+            <Color x:Key="GlassBorderColor">#00000008</Color>
+            <Color x:Key="GlassShadowColor">#1A000000</Color>
+            
+            <Color x:Key="SelectionColor">#007AFF</Color>
+            <Color x:Key="HoverColor">#1A000000</Color>
+            <Color x:Key="PressedColor">#33000000</Color>
+            
+            <Color x:Key="ControlBackgroundColor">#F9F9FB</Color>
+            <Color x:Key="ControlSecondaryBackgroundColor">#FFFFFF</Color>
+            
+            <Color x:Key="RedColor">#FF3B30</Color>
+            <Color x:Key="OrangeColor">#FF9500</Color>
+            <Color x:Key="YellowColor">#FFCC00</Color>
+            <Color x:Key="GreenColor">#34C759</Color>
+            <Color x:Key="TealColor">#5AC8FA</Color>
+            <Color x:Key="IndigoColor">#5856D6</Color>
+            <Color x:Key="PurpleColor">#AF52DE</Color>
+            <Color x:Key="PinkColor">#FF2D55</Color>
+        </ResourceDictionary>
+        
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="SystemBackgroundColor">#1C1C1E</Color>
+            <Color x:Key="SecondaryBackgroundColor">#2C2C2E</Color>
+            <Color x:Key="TertiaryBackgroundColor">#3A3A3C</Color>
+            
+            <Color x:Key="LabelColor">#FFFFFF</Color>
+            <Color x:Key="SecondaryLabelColor">#EBEBF599</Color>
+            <Color x:Key="TertiaryLabelColor">#EBEBF54D</Color>
+            <Color x:Key="QuaternaryLabelColor">#EBEBF528</Color>
+            
+            <Color x:Key="SeparatorColor">#54545899</Color>
+            <Color x:Key="OpaqueSeparatorColor">#38383A</Color>
+            
+            <Color x:Key="AccentColor">#0A84FF</Color>
+            <Color x:Key="AccentColorSecondary">#64D2FF</Color>
+            
+            <Color x:Key="GlassTintColor">#1C1C1E</Color>
+            <Color x:Key="GlassBorderColor">#FFFFFF0D</Color>
+            <Color x:Key="GlassShadowColor">#40000000</Color>
+            
+            <Color x:Key="SelectionColor">#0A84FF</Color>
+            <Color x:Key="HoverColor">#1AFFFFFF</Color>
+            <Color x:Key="PressedColor">#33FFFFFF</Color>
+            
+            <Color x:Key="ControlBackgroundColor">#2C2C2E</Color>
+            <Color x:Key="ControlSecondaryBackgroundColor">#3A3A3C</Color>
+            
+            <Color x:Key="RedColor">#FF453A</Color>
+            <Color x:Key="OrangeColor">#FF9F0A</Color>
+            <Color x:Key="YellowColor">#FFD60A</Color>
+            <Color x:Key="GreenColor">#32D74B</Color>
+            <Color x:Key="TealColor">#64D2FF</Color>
+            <Color x:Key="IndigoColor">#5E5CE6</Color>
+            <Color x:Key="PurpleColor">#BF5AF2</Color>
+            <Color x:Key="PinkColor">#FF375F</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

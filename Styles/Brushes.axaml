@@ -1,0 +1,64 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="SystemBackgroundBrush" Color="{DynamicResource SystemBackgroundColor}"/>
+    <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="{DynamicResource SecondaryBackgroundColor}"/>
+    <SolidColorBrush x:Key="TertiaryBackgroundBrush" Color="{DynamicResource TertiaryBackgroundColor}"/>
+    
+    <SolidColorBrush x:Key="LabelBrush" Color="{DynamicResource LabelColor}"/>
+    <SolidColorBrush x:Key="SecondaryLabelBrush" Color="{DynamicResource SecondaryLabelColor}"/>
+    <SolidColorBrush x:Key="TertiaryLabelBrush" Color="{DynamicResource TertiaryLabelColor}"/>
+    <SolidColorBrush x:Key="QuaternaryLabelBrush" Color="{DynamicResource QuaternaryLabelColor}"/>
+    
+    <SolidColorBrush x:Key="SeparatorBrush" Color="{DynamicResource SeparatorColor}"/>
+    <SolidColorBrush x:Key="OpaqueSeparatorBrush" Color="{DynamicResource OpaqueSeparatorColor}"/>
+    
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentSecondaryBrush" Color="{DynamicResource AccentColorSecondary}"/>
+    
+    <SolidColorBrush x:Key="SelectionBrush" Color="{DynamicResource SelectionColor}"/>
+    <SolidColorBrush x:Key="HoverBrush" Color="{DynamicResource HoverColor}"/>
+    <SolidColorBrush x:Key="PressedBrush" Color="{DynamicResource PressedColor}"/>
+    
+    <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{DynamicResource ControlBackgroundColor}"/>
+    <SolidColorBrush x:Key="ControlSecondaryBackgroundBrush" Color="{DynamicResource ControlSecondaryBackgroundColor}"/>
+    
+    <SolidColorBrush x:Key="RedBrush" Color="{DynamicResource RedColor}"/>
+    <SolidColorBrush x:Key="OrangeBrush" Color="{DynamicResource OrangeColor}"/>
+    <SolidColorBrush x:Key="YellowBrush" Color="{DynamicResource YellowColor}"/>
+    <SolidColorBrush x:Key="GreenBrush" Color="{DynamicResource GreenColor}"/>
+    <SolidColorBrush x:Key="TealBrush" Color="{DynamicResource TealColor}"/>
+    <SolidColorBrush x:Key="IndigoBrush" Color="{DynamicResource IndigoColor}"/>
+    <SolidColorBrush x:Key="PurpleBrush" Color="{DynamicResource PurpleColor}"/>
+    <SolidColorBrush x:Key="PinkBrush" Color="{DynamicResource PinkColor}"/>
+
+    <SolidColorBrush x:Key="GlassTintBrush" Color="{DynamicResource GlassTintColor}"/>
+    <SolidColorBrush x:Key="GlassBorderBrush" Color="{DynamicResource GlassBorderColor}"/>
+    <SolidColorBrush x:Key="GlassShadowBrush" Color="{DynamicResource GlassShadowColor}"/>
+
+    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{DynamicResource SecondaryBackgroundColor}" Opacity="0.72"/>
+    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="{DynamicResource SecondaryBackgroundColor}" Opacity="0.85"/>
+    <SolidColorBrush x:Key="OverlayBackgroundBrush" Color="{DynamicResource SystemBackgroundColor}" Opacity="0.95"/>
+
+    <LinearGradientBrush x:Key="ShimmerGradientBrush" StartPoint="0%,0%" EndPoint="100%,0%">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#1A000000" Offset="0"/>
+            <GradientStop Color="#33000000" Offset="0.5"/>
+            <GradientStop Color="#1A000000" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="GlassHighlightBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#33FFFFFF" Offset="0"/>
+            <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="PhotoSelectionRingBrush" Color="{DynamicResource AccentColor}" Opacity="0.8"/>
+    <SolidColorBrush x:Key="PhotoHoverOverlayBrush" Color="#FFFFFF" Opacity="0.08"/>
+
+    <SolidColorBrush x:Key="TrafficLightRedBrush" Color="#FF5F57"/>
+    <SolidColorBrush x:Key="TrafficLightYellowBrush" Color="#FEBC2E"/>
+    <SolidColorBrush x:Key="TrafficLightGreenBrush" Color="#28C840"/>
+</ResourceDictionary>

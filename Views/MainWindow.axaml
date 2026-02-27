@@ -1,0 +1,868 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Lensly.ViewModels"
+        xmlns:helpers="using:Lensly.Helpers"
+        xmlns:controls="using:Lensly.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="800"
+        x:Class="Lensly.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:Name="root"
+        Icon="/Assets/lensly-logo.png"
+        Title="Lensly"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        CanResize="True"
+        Background="Transparent"
+        TransparencyLevelHint="Mica, AcrylicBlur">
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="File">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Open Folder..." Click="NativeOpenFolder_Click" Gesture="Ctrl+O"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="Edit">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Toggle Favorite" Click="NativeToggleFavorite_Click"/>
+                        <NativeMenuItem Header="Play/Pause Video" Click="NativePlayPause_Click"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Purge Face Database" Click="NativePurgeDatabase_Click"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="View">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Zoom In" Click="NativeGalleryZoomIn_Click"/>
+                        <NativeMenuItem Header="Zoom Out" Click="NativeGalleryZoomOut_Click"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Toggle Inspector" Click="NativeInspectorButton_Click"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+            <NativeMenuItem Header="Navigate">
+                <NativeMenuItem.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Next Photo" Click="NativeNextButton_Click"/>
+                        <NativeMenuItem Header="Previous Photo" Click="NativePrevButton_Click"/>
+                        <NativeMenuItem Header="Go Back" Click="NativeBackButton_Click"/>
+                    </NativeMenu>
+                </NativeMenuItem.Menu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Lensly/Styles/Animations.axaml"/>
+                <ResourceInclude Source="avares://Lensly/Styles/Colors.axaml"/>
+                <ResourceInclude Source="avares://Lensly/Styles/Brushes.axaml"/>
+                <ResourceInclude Source="avares://Lensly/Styles/Controls.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <helpers:MathOffsetConverter x:Key="MathOffsetConverter"/>
+            <controls:StringToIconConverter x:Key="IconConverter"/>
+            <controls:StringToBrushConverter x:Key="StringToBrushConverter"/>
+
+            <ControlTheme x:Key="SidebarItemTheme" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                <Setter Property="Padding" Value="10,6"/>
+                <Setter Property="Margin" Value="8,1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Transitions">
+                    <Transitions>
+                        <BrushTransition Property="Background" Duration="0:0:0.1"/>
+                    </Transitions>
+                </Setter>
+                <Setter Property="Template">
+                    <ControlTemplate>
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter>
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="#12000000"/>
+                </Style>
+                <Style Selector="^:selected">
+                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Style Selector="^ PathIcon">
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </Style>
+            </ControlTheme>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Styles>
+        <StyleInclude Source="avares://Lensly/Styles/GlobalStyles.axaml"/>
+
+        <Style Selector="Button.NavBtn">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="Button.NavBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#99FFFFFF"/>
+        </Style>
+
+        <Style Selector="Button.ToolbarBtn">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="Button.ToolbarBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4DFFFFFF"/>
+        </Style>
+
+        <Style Selector="Button.BackBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4DFFFFFF"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button.VideoBtn">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Panel:pointerover Button.VideoBtn">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+
+        <Style Selector="Button.VideoBtn /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1AFFFFFF"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button.VideoBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF"/>
+        </Style>
+    </Window.Styles>
+
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource SystemBackgroundColor}"
+                    TintOpacity="0.3"
+                    MaterialOpacity="0.6" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <Grid ColumnDefinitions="240,*">
+
+            <!-- Sidebar -->
+            <Panel Grid.Column="0" Background="Transparent" PointerPressed="TitleBar_PointerPressed">
+                <Border BorderBrush="{DynamicResource GlassBorderBrush}" BorderThickness="0,0,1,0">
+                    <Grid RowDefinitions="*,Auto">
+                        <ScrollViewer Grid.Row="0" Padding="16,56,16,24"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="LIBRARY"
+                                           FontWeight="Bold" FontSize="11"
+                                           Foreground="#333333"
+                                           Margin="12,12,8,8" LetterSpacing="1"/>
+                                                            <ListBox ItemsSource="{Binding LibraryItems}"
+                                                                     SelectedItem="{Binding SelectedSidebarCategory}"
+                                                                     Background="Transparent" BorderThickness="0"
+                                                                     ItemContainerTheme="{StaticResource SidebarItemTheme}">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                                                            <PathIcon Data="{Binding Converter={StaticResource IconConverter}}"
+                                                                                      Width="16" Height="16"
+                                                                                      Foreground="{DynamicResource AccentBrush}"/>
+                                                                            <TextBlock Text="{Binding}" FontSize="14"
+                                                                                       VerticalAlignment="Center" FontWeight="Medium"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
+                                <TextBlock Text="PINNED"
+                                           FontWeight="Bold" FontSize="11"
+                                           Foreground="#333333"
+                                           Margin="12,24,8,8" LetterSpacing="1"/>
+                                                            <ListBox ItemsSource="{Binding PinnedItems}"
+                                                                     SelectedItem="{Binding SelectedSidebarCategory}"
+                                                                     Background="Transparent" BorderThickness="0"
+                                                                     ItemContainerTheme="{StaticResource SidebarItemTheme}">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                                                            <PathIcon Data="{Binding Converter={StaticResource IconConverter}}"
+                                                                                      Width="16" Height="16"
+                                                                                      Foreground="{DynamicResource AccentBrush}"/>
+                                                                            <TextBlock Text="{Binding}" FontSize="14"
+                                                                                       VerticalAlignment="Center" FontWeight="Medium"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
+                                <TextBlock Text="ALBUMS"
+                                           FontWeight="Bold" FontSize="11"
+                                           Foreground="#333333"
+                                           Margin="12,24,8,8" LetterSpacing="1"/>
+                                                            <ListBox ItemsSource="{Binding AlbumItems}"
+                                                                     SelectedItem="{Binding SelectedSidebarCategory}"
+                                                                     Background="Transparent" BorderThickness="0"
+                                                                     ItemContainerTheme="{StaticResource SidebarItemTheme}">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                                                            <PathIcon Data="{Binding Converter={StaticResource IconConverter}}"
+                                                                                      Width="16" Height="16"
+                                                                                      Foreground="{DynamicResource AccentBrush}"/>
+                                                                            <TextBlock Text="{Binding}" FontSize="14"
+                                                                                       VerticalAlignment="Center" FontWeight="Medium"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Global Progress Indicator at bottom of Sidebar -->
+                        <Border Grid.Row="1" IsVisible="{Binding IsAnalyzing}" 
+                                Background="{DynamicResource HoverBrush}" 
+                                BorderBrush="{DynamicResource SidebarBorderBrush}" 
+                                BorderThickness="0,1,0,0"
+                                Padding="16,12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{Binding CurrentStatusText}" 
+                                           FontSize="11" 
+                                           Foreground="{DynamicResource SecondaryLabelBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <ProgressBar Value="{Binding AnalysisProgress}" 
+                                                 Height="4" CornerRadius="2" 
+                                                 Background="#1A000000" 
+                                                 Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Grid.Column="1" 
+                                               Text="{Binding AnalysisProgress, StringFormat={}{0:0}%}" 
+                                               FontSize="10" FontWeight="Bold" 
+                                               Margin="8,0,0,0"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Panel>
+
+            <!-- Main content area -->
+            <Panel Grid.Column="1">
+                <Border Background="{DynamicResource ControlSecondaryBackgroundBrush}" Opacity="0.4"/>
+
+                <!-- Gallery View -->
+                <Panel IsVisible="{Binding IsGalleryView}">
+                    <TransitioningContentControl Content="{Binding SelectedSidebarCategory}">
+                        <TransitioningContentControl.PageTransition>
+                            <CrossFade Duration="0:0:0.25"/>
+                        </TransitioningContentControl.PageTransition>
+                        <TransitioningContentControl.ContentTemplate>
+                            <DataTemplate>
+                                                                <ScrollViewer Margin="0,110,0,0" Background="Transparent" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                                    <Grid Margin="0,0,0,24" SizeChanged="PhotoGrid_SizeChanged">
+                                                                        <ItemsControl ItemsSource="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).GroupedPhotos}" x:Name="PhotoGrid" HorizontalAlignment="Stretch">
+                                                                            <ItemsControl.ItemTemplate>                                                <DataTemplate DataType="vm:PhotoGroup">
+                                                    <StackPanel Spacing="16" Margin="24,0,24,32" HorizontalAlignment="Stretch">
+                                                        <Border Background="#1A000000"
+                                                                CornerRadius="12"
+                                                                Padding="16,8"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding Header}"
+                                                                       FontWeight="SemiBold" FontSize="16"
+                                                                       Foreground="{DynamicResource LabelBrush}"/>
+                                                        </Border>
+                                                        <ItemsControl ItemsSource="{Binding Photos}"
+                                                                      EffectiveViewportChanged="PhotoListBox_ViewportChanged"
+                                                                      HorizontalAlignment="Stretch">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Horizontal"
+                                                                               HorizontalAlignment="Left">
+                                                                        <WrapPanel.Transitions>
+                                                                            <Transitions>
+                                                                                <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                                                                            </Transitions>
+                                                                        </WrapPanel.Transitions>
+                                                                    </WrapPanel>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate DataType="vm:PhotoItem">
+                                                                    <Border Width="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CurrentThumbnailSize}"
+                                                                            Height="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CurrentThumbnailSize}"
+                                                                            Padding="4"
+                                                                            Background="Transparent">
+                                                                        <Border CornerRadius="16"
+                                                                                ClipToBounds="True"
+                                                                                Focusable="True"
+                                                                                Background="#1A000000"
+                                                                                Cursor="Hand"
+                                                                                Tapped="Thumbnail_Tapped"
+                                                                                BoxShadow="0 4 12 0 #1A000000"
+                                                                                Classes="GalleryItem">
+                                                                            <Border.Transitions>
+                                                                                <Transitions>
+                                                                                    <DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                                                                                    <DoubleTransition Property="Height" Duration="0:0:0.35" Easing="CubicEaseOut"/>
+                                                                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                                                                                </Transitions>
+                                                                            </Border.Transitions>
+                                                                            <Border.Styles>
+                                                                                <Style Selector="Border.GalleryItem:pointerover Image.yearBlur">
+                                                                                    <Setter Property="Opacity" Value="0"/>
+                                                                                </Style>
+                                                                                <Style Selector="Border.GalleryItem:pointerover Border.yearOverlay">
+                                                                                    <Setter Property="Opacity" Value="0"/>
+                                                                                </Style>
+                                                                            </Border.Styles>
+                                                                            <Border.RenderTransform>
+                                                                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                                                            </Border.RenderTransform>
+                                                                            <Border.ContextMenu>
+                                                                                <ContextMenu>
+                                                                                    <MenuItem Header="Info"/>
+                                                                                    <Separator/>
+                                                                                    <MenuItem Header="Favorite"/>
+                                                                                    <Separator/>
+                                                                                    <MenuItem Header="Delete" Foreground="{DynamicResource RedBrush}"/>
+                                                                                </ContextMenu>
+                                                                            </Border.ContextMenu>
+                                                                            <Grid>
+                                                                                <!-- Blur background for Years view -->
+                                                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding IsYearPreview}" Opacity="0.6" Classes="yearBlur">
+                                                                                    <Image.Effect>
+                                                                                        <BlurEffect Radius="20"/>
+                                                                                    </Image.Effect>
+                                                                                </Image>
+                                                                                <Border Background="#4D000000" IsVisible="{Binding IsYearPreview}" Classes="yearOverlay"/>
+                                                                                
+                                                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" Opacity="1" IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                                                    <Image.Transitions>
+                                                                                        <Transitions>
+                                                                                            <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+                                                                                        </Transitions>
+                                                                                    </Image.Transitions>
+                                                                                </Image>
+                                                                                
+                                                                                <!-- Year Overlay Text -->
+                                                                                <TextBlock Text="{Binding YearText}" 
+                                                                                           IsVisible="{Binding IsYearPreview}"
+                                                                                           Foreground="White" 
+                                                                                           FontWeight="Bold" 
+                                                                                           FontSize="24"
+                                                                                           HorizontalAlignment="Center" 
+                                                                                           VerticalAlignment="Center"/>
+
+                                                                                <!-- Favorite Indicator -->
+                                                                                <PathIcon Data="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.41,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.59,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"
+                                                                                          Width="12" Height="12"
+                                                                                          Foreground="{DynamicResource RedBrush}"
+                                                                                          IsVisible="{Binding IsFavorite}"
+                                                                                          HorizontalAlignment="Right"
+                                                                                          VerticalAlignment="Bottom"
+                                                                                          Margin="10"/>
+                                                                                
+                                                                                <!-- Video Indicator -->
+                                                                                <Border IsVisible="{Binding IsVideo}" Background="#B3000000" CornerRadius="4" Padding="4,2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">
+                                                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                                                        <PathIcon Data="M8,5.14V19.14L19,12.14L8,5.14Z" Width="10" Height="10" Foreground="White"/>
+                                                                                        <TextBlock Text="Video" FontSize="10" Foreground="White" FontWeight="Medium"/>
+                                                                                    </StackPanel>
+                                                                                </Border>
+                                                                            </Grid>
+                                                                        </Border>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </ScrollViewer>
+                            </DataTemplate>
+                        </TransitioningContentControl.ContentTemplate>
+                    </TransitioningContentControl>
+
+                    <!-- Gallery Top Floating Header -->
+                    <Border VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="24,32,24,0" ZIndex="10"
+                            Background="#99FFFFFF"
+                            BorderBrush="{DynamicResource GlassBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="24"
+                            BoxShadow="0 12 32 0 #2A000000"
+                            PointerPressed="TitleBar_PointerPressed">
+                        <Grid Margin="24,12" ColumnDefinitions="*,Auto,*">
+                            <!-- Left: Category info -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="16">
+                                <Button IsVisible="{Binding IsFiltered}"
+                                        Content="&#8249;"
+                                        Width="32" Height="32" 
+                                        CornerRadius="16" 
+                                        FontSize="20"
+                                        Padding="0,-2,0,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Background="#1A000000"
+                                        Foreground="{DynamicResource LabelBrush}"
+                                        Click="GalleryBack_Click"
+                                        ToolTip.Tip="Back to People"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <!-- WhatsApp Icon -->
+                                    <Path IsVisible="{Binding IsWhatsAppFolder}" 
+                                          Data="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 14C16.31 13.86 15.09 13.26 14.87 13.18C14.64 13.1 14.5 13.06 14.31 13.3C14.15 13.55 13.67 14.11 13.53 14.27C13.38 14.44 13.24 14.46 13 14.34C12.74 14.21 11.94 13.95 11 13.11C10.26 12.45 9.77 11.64 9.62 11.39C9.5 11.15 9.61 11 9.73 10.89C9.84 10.78 10 10.6 10.1 10.45C10.23 10.31 10.27 10.2 10.35 10.04C10.43 9.87 10.39 9.73 10.33 9.61C10.27 9.5 9.77 8.26 9.56 7.77C9.36 7.29 9.16 7.35 9 7.34C8.86 7.34 8.7 7.33 8.53 7.33Z" 
+                                          Fill="#25D366" 
+                                          Width="20" 
+                                          Height="20" 
+                                          Stretch="Uniform" 
+                                          VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding CurrentCategoryName}" FontWeight="Bold" FontSize="18" Foreground="{DynamicResource LabelBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Border Background="#1A000000" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding PhotoCount}" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource SecondaryLabelBrush}"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Center: Time View Segments -->
+                            <controls:SegmentedControl Grid.Column="1" 
+                                                       Items="{Binding TimeViews}" 
+                                                       SelectedItem="{Binding SelectedTimeView, Mode=TwoWay}"
+                                                       IsVisible="{Binding !IsFiltered}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+
+                            <!-- Right: Search & Actions -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Border Background="{DynamicResource HoverBrush}" CornerRadius="12" Padding="12,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Height="32">
+                                        <PathIcon Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" Width="14" Height="14" Foreground="{DynamicResource SecondaryLabelBrush}" VerticalAlignment="Center"/>
+                                        <TextBox Text="{Binding SearchText, Mode=TwoWay}" 
+                                                 Watermark="Search photos..." 
+                                                 BorderThickness="0" 
+                                                 Background="Transparent" 
+                                                 Padding="0" 
+                                                 MinWidth="120" 
+                                                 FontSize="13"
+                                                 VerticalAlignment="Center"
+                                                 VerticalContentAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="GalleryZoomOut_Click" ToolTip.Tip="Zoom Out">
+                                    <PathIcon Data="M19,13H5V11H19V13Z" Width="16" Height="16" Foreground="{DynamicResource AccentBrush}"/>
+                                </Button>
+                                <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="GalleryZoomIn_Click" ToolTip.Tip="Zoom In">
+                                    <PathIcon Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Width="16" Height="16" Foreground="{DynamicResource AccentBrush}"/>
+                                </Button>
+                                <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="OpenFolder_Click">
+                                    <PathIcon Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" Width="16" Height="16" Foreground="{DynamicResource AccentBrush}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Panel>
+
+                <!-- Collections View -->
+                <Panel IsVisible="{Binding IsCollectionsView}">
+                    <ScrollViewer Padding="40,120,40,40">
+                        <StackPanel Spacing="32">
+                            <TextBlock Text="{Binding SelectedSidebarCategory}" FontWeight="Bold" FontSize="32" Foreground="{DynamicResource LabelBrush}"/>
+                            <ItemsControl ItemsSource="{Binding Collections}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:MainWindowViewModel+CollectionItem">
+                                        <Button Background="Transparent" Padding="0" Margin="12" Click="CollectionCard_Click" Tag="{Binding Name}">
+                                            <Border Width="200" Height="200" CornerRadius="20" ClipToBounds="True" Background="{DynamicResource HoverBrush}" BoxShadow="0 8 24 0 #2A000000">
+                                                <Grid>
+                                                    <Image Source="{Binding Preview}" Stretch="UniformToFill" Opacity="0.8"/>
+                                                    <Border Background="#66000000" VerticalAlignment="Bottom" Padding="16">
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <StackPanel Grid.Column="0" Spacing="2">
+                                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="White" FontSize="15"/>
+                                                                <TextBlock Text="{Binding PhotoCount, StringFormat='{}{0} items'}" Foreground="#CCFFFFFF" FontSize="12"/>
+                                                            </StackPanel>
+                                                            <PathIcon Grid.Column="1" Data="{Binding Icon, Converter={StaticResource IconConverter}}" Width="20" Height="20" Foreground="White"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <StackPanel IsVisible="{Binding !PhotoCount}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+                                                        <PathIcon Data="{Binding Icon, Converter={StaticResource IconConverter}}" Width="40" Height="40" Foreground="{Binding AccentColor, Converter={StaticResource StringToBrushConverter}}"/>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" Foreground="{DynamicResource LabelBrush}" HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="No items" FontSize="13" Foreground="{DynamicResource SecondaryLabelBrush}" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Panel>
+
+                <!-- People View -->
+                <Panel IsVisible="{Binding IsPeopleView}" PointerPressed="PeopleView_PointerPressed" Background="Transparent">
+                    <ScrollViewer Padding="40,120,40,40">
+                        <StackPanel Spacing="32">
+                            <TextBlock Text="People" FontWeight="Bold" FontSize="32" Foreground="{DynamicResource LabelBrush}"/>
+                            
+                            <ItemsControl ItemsSource="{Binding People}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:MainWindowViewModel+PersonItemViewModel">
+                                        <StackPanel Spacing="8" Margin="12">
+                                            <Border Width="160" Height="160" CornerRadius="80" ClipToBounds="True" Background="{DynamicResource HoverBrush}" BoxShadow="0 8 24 0 #2A000000" Tapped="PersonCard_Tapped" Cursor="Hand">
+                                                <Border.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="Rename" Click="RenamePerson_Click"/>
+                                                        <MenuItem Header="Merge with..." Click="MergePerson_Click"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="Delete Person" Foreground="{DynamicResource RedBrush}" Click="DeletePerson_Click"/>
+                                                    </ContextMenu>
+                                                </Border.ContextMenu>
+                                                <Grid>
+                                                    <Image Source="{Binding RepresentativeFace}" Stretch="UniformToFill"/>
+                                                    <PathIcon Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
+                                                              Width="48" Height="48" Foreground="{DynamicResource TertiaryLabelBrush}"
+                                                              IsVisible="{Binding RepresentativeFace, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                </Grid>
+                                            </Border>
+                                            <TextBox Text="{Binding Name, Mode=TwoWay}" 
+                                                     HorizontalContentAlignment="Center"
+                                                     HorizontalAlignment="Center"
+                                                     FontWeight="SemiBold" 
+                                                     FontSize="15" 
+                                                     BorderThickness="0"
+                                                     Background="Transparent"
+                                                     Padding="0"
+                                                     MinWidth="120"
+                                                     LostFocus="PersonName_LostFocus"
+                                                     KeyDown="PersonName_KeyDown"/>
+                                            <TextBlock Text="{Binding FaceCount, StringFormat='{}{0} photos'}" HorizontalAlignment="Center" FontSize="11" Foreground="{DynamicResource SecondaryLabelBrush}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            
+                            <StackPanel IsVisible="{Binding !People.Count}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="24" Margin="0,100,0,0">
+                                <PathIcon Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" Width="80" Height="80" Foreground="{DynamicResource TertiaryLabelBrush}"/>
+                                <TextBlock Text="No people recognized yet" FontSize="15" Foreground="{DynamicResource SecondaryLabelBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Panel>
+
+                <!-- Detail / Player View -->
+                <Panel IsVisible="{Binding IsDetailView}" ZIndex="50" PointerMoved="DetailPanel_PointerMoved" Background="Transparent">
+                    <Border Background="#F2000000">
+                        <Border.Transitions>
+                            <Transitions>
+                                <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                            </Transitions>
+                        </Border.Transitions>
+                    </Border>
+
+                    <!-- Content Area (Full screen) -->
+                    <Grid x:Name="ZoomContainer" Background="Transparent" ClipToBounds="True" EffectiveViewportChanged="ZoomContainer_ViewportChanged" PointerWheelChanged="Detail_PointerWheelChanged" PointerPressed="Detail_PointerPressed" PointerMoved="Detail_PointerMoved" PointerReleased="Detail_PointerReleased">
+                        <Border x:Name="ImageBorder" IsVisible="{Binding !IsVideoSelected}" HorizontalAlignment="Center" VerticalAlignment="Center" ZIndex="1" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                    <TranslateTransform X="0" Y="0"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                            <Panel>
+                                <Image x:Name="MainImage" Source="{Binding SelectedPhoto.FullImage}" Stretch="Uniform" MaxWidth="{Binding #ZoomContainer.Bounds.Width}" MaxHeight="{Binding #ZoomContainer.Bounds.Height}" IsVisible="{Binding !IsEditing}"/>
+                                <Image Source="{Binding PreviewImage}" Stretch="Uniform" MaxWidth="{Binding #ZoomContainer.Bounds.Width}" MaxHeight="{Binding #ZoomContainer.Bounds.Height}" IsVisible="{Binding IsEditing}"/>
+                            </Panel>
+                        </Border>
+                        
+                        <Border x:Name="VideoBorder" IsVisible="{Binding IsVideoSelected}" HorizontalAlignment="Center" VerticalAlignment="Center" ZIndex="5" RenderTransformOrigin="0.5,0.5" MaxWidth="{Binding #ZoomContainer.Bounds.Width}" MaxHeight="{Binding #ZoomContainer.Bounds.Height}">
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                    <TranslateTransform X="0" Y="0"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                            <controls:NativeVideoView x:Name="NativeVideoPlayer" 
+                                                     FilePath="{Binding SelectedPhoto.FilePath}"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     IsHitTestVisible="False"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Detail View Overlays (Controls that must be on top of native video) -->
+                    <Popup x:Name="DetailPopup"
+                           IsOpen="{Binding IsDetailView}"
+                           Placement="AnchorAndGravity"
+                           PlacementAnchor="TopLeft"
+                           PlacementGravity="BottomRight"
+                           PlacementTarget="{Binding #ZoomContainer}"
+                           IsLightDismissEnabled="False"
+                           OverlayInputPassThroughElement="{Binding #ZoomContainer}">
+                        <Panel Width="{Binding #ZoomContainer.Bounds.Width}" Height="{Binding #ZoomContainer.Bounds.Height}" Background="{x:Null}" PointerMoved="Popup_PointerMoved">
+                            
+                            <!-- Floating Top Toolbar -->
+                            <Border VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="24,32,24,0" Background="#33000000" BorderBrush="#1AFFFFFF" BorderThickness="1" CornerRadius="24" BoxShadow="0 12 32 0 #40000000" IsVisible="{Binding AreVideoControlsVisible}"
+                                    PointerEntered="ControlBar_PointerEntered" PointerExited="ControlBar_PointerExited">
+                                <Border.Transitions>
+                                    <Transitions>
+                                        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseInOut"/>
+                                    </Transitions>
+                                </Border.Transitions>
+                                <Grid Margin="24,12" ColumnDefinitions="Auto,*,Auto">
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                                        <Button Classes="BackBtn" Content="← Back" Background="#33FFFFFF" Foreground="White" FontWeight="Medium" CornerRadius="16" Padding="16,8" Click="BackButton_Click"/>
+                                        <Rectangle Width="1" Fill="#33FFFFFF" Margin="8,4"/>
+                                        <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="ZoomOut_Click" Background="#33FFFFFF" ToolTip.Tip="Zoom Out" IsVisible="{Binding !IsVideoSelected}">
+                                            <PathIcon Data="M19,13H5V11H19V13Z" Width="14" Height="14" Foreground="White"/>
+                                        </Button>
+                                        <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="ZoomIn_Click" Background="#33FFFFFF" ToolTip.Tip="Zoom In" IsVisible="{Binding !IsVideoSelected}">
+                                            <PathIcon Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Width="14" Height="14" Foreground="White"/>
+                                        </Button>
+                                    </StackPanel>
+                                    
+                                    <TextBlock Grid.Column="1" Text="{Binding SelectedPhoto.Title}" FontWeight="Bold" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
+                                        <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="ToggleFavorite_Click" Background="#33FFFFFF">
+                                            <PathIcon Data="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.41,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.59,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z" Width="14" Height="14" Foreground="{Binding SelectedPhoto.IsFavorite, Converter={x:Static controls:FavoriteColorConverter.Instance}}"/>
+                                        </Button>
+                                        <Button Classes="ToolbarBtn" Content="i" Width="36" Height="36" CornerRadius="18" FontWeight="Bold" FontSize="14" Click="InspectorButton_Click" Background="#33FFFFFF" Foreground="White"/>
+                                        <Button Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="EditButton_Click" Background="#33FFFFFF" IsVisible="{Binding !IsVideoSelected}">
+                                            <PathIcon Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" Width="14" Height="14" Foreground="White"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Navigation Buttons -->
+                            <Button Classes="NavBtn" Content="&#8249;" Click="PrevButton_Click" HorizontalAlignment="Left" VerticalAlignment="Center" Width="56" Height="56" CornerRadius="28" Margin="24,0" FontSize="32" Background="#66FFFFFF" Foreground="#1D1D1F" IsVisible="{Binding AreVideoControlsVisible}">
+                                <Button.Transitions>
+                                    <Transitions>
+                                        <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                                        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseInOut"/>
+                                    </Transitions>
+                                </Button.Transitions>
+                            </Button>
+
+                            <Button Classes="NavBtn" Content="&#8250;" Click="NextButton_Click" HorizontalAlignment="Right" VerticalAlignment="Center" Width="56" Height="56" CornerRadius="28" Margin="24,0" FontSize="32" Background="#66FFFFFF" Foreground="#1D1D1F" IsVisible="{Binding AreVideoControlsVisible}">
+                                <Button.Transitions>
+                                    <Transitions>
+                                        <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                                        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseInOut"/>
+                                    </Transitions>
+                                </Button.Transitions>
+                            </Button>
+
+                            <!-- Dynamic Island Video Controls (Only for Videos) -->
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40" 
+                                    IsVisible="{Binding IsVideoSelected}"
+                                    Background="#CC1D1D1F" CornerRadius="32" Padding="24,16" MinWidth="500" BoxShadow="0 16 48 0 #80000000"
+                                    PointerEntered="ControlBar_PointerEntered" PointerExited="ControlBar_PointerExited">
+                                <Border.IsVisible>
+                                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                        <Binding Path="IsVideoSelected"/>
+                                        <Binding Path="AreVideoControlsVisible"/>
+                                    </MultiBinding>
+                                </Border.IsVisible>
+                                <Border.Transitions>
+                                    <Transitions>
+                                        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseInOut"/>
+                                    </Transitions>
+                                </Border.Transitions>
+                                <Border.RenderTransform>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                </Border.RenderTransform>
+                                
+                                <StackPanel Spacing="16">
+                                    <!-- Time and Seekbar -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="{Binding VideoTimeDisplay}" Foreground="#CCFFFFFF" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                        <Slider x:Name="VideoScrubSlider"
+                                                Minimum="0" Maximum="{Binding VideoDurationSeconds}" Value="{Binding VideoPositionSeconds}" 
+                                                PointerPressed="VideoSeek_PointerPressed"
+                                                PointerReleased="VideoSeek_PointerReleased"
+                                                PointerMoved="VideoSeek_PointerMoved"
+                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                    <Grid ColumnDefinitions="*,Auto,*">
+                                        <!-- Left Column (Empty for centering) -->
+                                        <Rectangle Grid.Column="0" Width="120" Fill="Transparent"/>
+
+                                        <!-- Playback Actions (Center Column) -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <Button Classes="VideoBtn" Width="64" Height="64" CornerRadius="32" Background="#FFFFFF" Click="PlayPause_Click">
+                                                <TextBlock Text="{Binding PlayPauseIcon}" FontSize="28" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,-2,0,0"/>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <!-- Volume Actions (Right Column) -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" VerticalAlignment="Center" Width="120">
+                                            <Path Data="M3,9V15H7L12,20V4L7,9H3M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.02C15.5,15.29 16.5,13.77 16.5,12Z" Fill="White" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Opacity="0.9"/>
+                                            <Slider Width="80" Minimum="0" Maximum="1" Value="{Binding VideoVolume, Mode=TwoWay}" ValueChanged="VideoVolume_Changed" Foreground="White"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Inspector panel (Overlay) -->
+                            <Border IsVisible="{Binding SelectedPhoto.ShowInspector}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,110,24,0" Width="300" Background="#E61D1D1F" CornerRadius="20" BorderBrush="#33FFFFFF" BorderThickness="1" BoxShadow="0 16 48 0 #60000000" Padding="24">
+                                <StackPanel Spacing="20">
+                                    <TextBlock Text="{Binding SelectedPhoto.Title}" FontWeight="Bold" FontSize="16" Foreground="White" TextWrapping="Wrap"/>
+                                    <Rectangle Height="1" Fill="#33FFFFFF"/>
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="DATE" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding SelectedPhoto.DateTaken, StringFormat='{}{0:MMMM d, yyyy  h:mm tt}'}" FontSize="14" Foreground="White"/>
+                                    </StackPanel>
+                                    <Grid ColumnDefinitions="*,*">
+                                        <StackPanel Grid.Column="0" Spacing="6">
+                                            <TextBlock Text="DIMENSIONS" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding SelectedPhoto.DimensionsFormatted}" FontSize="14" Foreground="White"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="6">
+                                            <TextBlock Text="SIZE" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding SelectedPhoto.FileSizeFormatted}" FontSize="14" Foreground="White"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel IsVisible="{Binding SelectedPhoto.HasCameraInfo}" Spacing="6">
+                                        <Rectangle Height="1" Fill="#33FFFFFF" Margin="0,4,0,8"/>
+                                        <TextBlock Text="CAMERA" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                        <TextBlock FontSize="14" Foreground="White" TextWrapping="Wrap">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0} {1}">
+                                                    <Binding Path="SelectedPhoto.Metadata.CameraMake" FallbackValue=""/>
+                                                    <Binding Path="SelectedPhoto.Metadata.CameraModel" FallbackValue=""/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <StackPanel IsVisible="{Binding SelectedPhoto.HasExifInfo}" Spacing="16">
+                                        <Rectangle Height="1" Fill="#33FFFFFF" Margin="0,4,0,0"/>
+                                        <Grid ColumnDefinitions="*,*">
+                                            <StackPanel Grid.Column="0" Spacing="6">
+                                                <TextBlock Text="SHUTTER" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding SelectedPhoto.ShutterSpeedFormatted}" FontSize="14" Foreground="White"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Spacing="6">
+                                                <TextBlock Text="ISO" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding SelectedPhoto.Metadata.Iso, FallbackValue='—'}" FontSize="14" Foreground="White"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="APERTURE" FontSize="11" Foreground="#99FFFFFF" LetterSpacing="1" FontWeight="Bold"/>
+                                            <TextBlock FontSize="14" Foreground="White">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="f/{0:0.#}" FallbackValue="—">
+                                                        <Binding Path="SelectedPhoto.Metadata.Aperture"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Image Editing Panel (Floating) -->
+                            <Border IsVisible="{Binding IsEditing}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,24,0" Width="280" Background="#E61D1D1F" CornerRadius="24" BorderBrush="#33FFFFFF" BorderThickness="1" BoxShadow="0 16 48 0 #80000000" Padding="24">
+                                <StackPanel Spacing="20">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Text="Edit Photo" FontWeight="Bold" FontSize="18" Foreground="White"/>
+                                        <Button Grid.Column="1" Classes="ToolbarBtn" Width="36" Height="36" CornerRadius="18" Click="CropToggleButton_Click" ToolTip.Tip="Crop" Background="#33FFFFFF">
+                                            <PathIcon Data="M7,17V1H5V5H1V7H5V17A2,2 0 0,0 7,19H17V23H19V19H23V17M17,15H19V7A2,2 0 0,0 17,5H9V7H17V15Z" Width="16" Height="16" Foreground="White"/>
+                                        </Button>
+                                    </Grid>
+                                    
+                                    <StackPanel Spacing="20" IsVisible="{Binding !IsCropping}">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="Brightness" FontSize="12" Foreground="#99FFFFFF" FontWeight="Medium"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding EditBrightness, StringFormat='{}{0:F2}'}" FontSize="12" Foreground="#99FFFFFF"/>
+                                            </Grid>
+                                            <Slider Minimum="-1" Maximum="1" Value="{Binding EditBrightness}" Foreground="{DynamicResource AccentBrush}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="Contrast" FontSize="12" Foreground="#99FFFFFF" FontWeight="Medium"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding EditContrast, StringFormat='{}{0:F2}'}" FontSize="12" Foreground="#99FFFFFF"/>
+                                            </Grid>
+                                            <Slider Minimum="0.25" Maximum="4" Value="{Binding EditContrast}" Foreground="{DynamicResource AccentBrush}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="Rotation" FontSize="12" Foreground="#99FFFFFF" FontWeight="Medium"/>
+                                            <Grid ColumnDefinitions="*,*">
+                                                <Button Grid.Column="0" Content="-90°" Click="RotateLeft_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Background="White" Foreground="Black" CornerRadius="8" Margin="0,0,4,0"/>
+                                                <Button Grid.Column="1" Content="+90°" Click="RotateRight_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Background="White" Foreground="Black" CornerRadius="8" Margin="4,0,0,0"/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="Filter" FontSize="12" Foreground="#99FFFFFF" FontWeight="Medium"/>
+                                            <ComboBox ItemsSource="{Binding AvailableFilters}" SelectedItem="{Binding SelectedFilter}" HorizontalAlignment="Stretch" Background="#33FFFFFF" Foreground="White" CornerRadius="8"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Rectangle Height="1" Fill="#33FFFFFF" Margin="0,10"/>
+
+                                    <Grid ColumnDefinitions="*,*">
+                                        <Button Grid.Column="0" Content="Cancel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Background="Transparent" Foreground="White" Click="CancelEdit_Click" Margin="0,0,8,0"/>
+                                        <Button Grid.Column="1" Content="Save Copy" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Background="{DynamicResource AccentBrush}" Foreground="White" Click="SaveEdit_Click" CornerRadius="12"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </Panel>
+                    </Popup>
+                </Panel>
+
+                <!-- Global Notification Overlay -->
+                <Border IsVisible="{Binding IsNotificationVisible}" 
+                        HorizontalAlignment="Center" VerticalAlignment="Top" 
+                        Margin="0,96,0,0" ZIndex="200" 
+                        Background="#CC1D1D1F" CornerRadius="16" 
+                        Padding="24,12" BoxShadow="0 8 32 0 #40000000">
+                    <Border.Transitions>
+                        <Transitions>
+                            <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                        </Transitions>
+                    </Border.Transitions>
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <PathIcon Data="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" Width="20" Height="20" Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="{Binding NotificationMessage}" Foreground="White" FontWeight="Medium" FontSize="14" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Panel>
+        </Grid>
+    </Panel>
+</Window>
